@@ -132,22 +132,13 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.parallel=true -Dorg.gradle.configureondemand=true"
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/cache/save@v4
         if: always()
         with:
-          name: build-artifacts-${{ matrix.name }}
+          key: build-artifacts-${{ matrix.name }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             build/libs/
             build/reports/
-          retention-days: 7
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results-${{ matrix.name }}
-          path: build/test-results/
-          retention-days: 7
 
   publish-maven:
     name: Publish to Maven
@@ -201,10 +192,11 @@ jobs:
           fetch-tags: true
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/cache/restore@v4
         with:
-          name: build-artifacts-Main Build
+          key: build-artifacts-Main Build-${{ github.run_id }}-${{ github.run_attempt }}
           path: build/
+          fail-on-cache-miss: true
 
       - name: Verify build artifacts
         run: |
@@ -267,10 +259,11 @@ jobs:
           fetch-tags: true
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/cache/restore@v4
         with:
-          name: build-artifacts-Main Build
+          key: build-artifacts-Main Build-${{ github.run_id }}-${{ github.run_attempt }}
           path: build/
+          fail-on-cache-miss: true
 
       - name: Verify build artifacts
         run: |
